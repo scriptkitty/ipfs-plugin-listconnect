@@ -15,10 +15,10 @@ import (
 )
 
 const (
-	connectTimeout = 5 * time.Second
-	idleInterval   = 10 * time.Second
-	lookupTimeout  = 10 * time.Second
-	lookupInterval = 120 * time.Second
+	connectTimeout = 10 * time.Second
+	idleInterval   = 60 * time.Second
+	lookupTimeout  = 15 * time.Second
+	lookupInterval = 600 * time.Second
 	peerFilePath   = "list-connect.peers"
 )
 
@@ -53,11 +53,11 @@ func (cp *ConnectPlugin) Start(ipfsInstance *core.IpfsNode) error {
 // Actual logic goes here. First, we need a wrapper around the Connect() function which takes a list of peerAddrs
 func (cp *ConnectPlugin) connectToAll(pctx context.Context) {
 	// Connect to the list of peers. Hopefully Connect() skips the ones that we are already connect to
-	ctx, cancelFunc := context.WithTimeout(pctx, connectTimeout)
-	defer cancelFunc()
 	for _, pinfo := range cp.peerIDMap {
 		if len(pinfo.Addrs) > 0 {
 			fmt.Printf("Connecting to %s\n", pinfo)
+			ctx, cancelFunc := context.WithTimeout(pctx, connectTimeout)
+			defer cancelFunc()
 			err := cp.api.PeerHost.Connect(ctx, pinfo)
 			if err != nil {
 				fmt.Println(err)
